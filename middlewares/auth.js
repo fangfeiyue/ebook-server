@@ -13,7 +13,7 @@ class Auth {
 	}
 
 	get m() {
-		return async (ctx, res, next) => {
+		return (ctx, res, next) => {
 			// https://blog.csdn.net/bingbob/article/details/104789937/
 			// ctx.req后去的是node.js原生的request对象
 			// ctx.request获取的是koa对node.js原生request封装的一个对象
@@ -29,7 +29,6 @@ class Auth {
 				// 校验令牌
 				var decode = jwt.verify(userToken.name, config.security.secretKey);
 			} catch (error) {
-				console.log('eerrr', error.name);
 				if (error.name == 'TokenExpiredError' || error.name == 'JsonWebTokenError') {
 					errMsg = 'token已过期';
 				}
@@ -48,7 +47,7 @@ class Auth {
 				uid: decode.uid,
 				scope: decode.scope
 			};
-			await next();
+			next();
 		};
 	}
 
