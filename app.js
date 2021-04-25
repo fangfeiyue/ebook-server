@@ -1,14 +1,35 @@
 const express = require('express')
 const app = express()
 const mysql = require('mysql')
+// const InitManager = require('./core/init')
 const cors = require('cors')
 const userRouter = require('./app/api/v1/user')
 const tokenRouter = require('./app/api/v1/token')
+const likeRouter = require('./app/api/v1/like')
+const catchError = require('./middlewares/exception')
+
 app.use(cors())
 
 app.use('/v1/user', userRouter)
 app.use('/v1/token', tokenRouter)
+app.use('/v1/like', likeRouter)
 
+app.use((err, req, res, next) => {
+	// res.status(500).send(err.message);
+  // next()
+  // console.log(err)
+  catchError(err, req, res, next)
+})
+
+// app.use(function(req, res, next) {
+//   // next(catchError(req, res, next))
+//   console.log('asdfasdffasdfasdfasd')
+//   // catchError(req, res, next)
+// })
+
+// app.use(catchError)
+
+// InitManager.initCore(app)
 
 // function connect() {
 //   return mysql.createConnection({
