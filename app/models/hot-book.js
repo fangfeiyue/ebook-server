@@ -2,7 +2,7 @@ const { sequelize } = require('../../core/db');
 const { Sequelize, Model, Op } = require('sequelize');
 const { Favor } = require('./favor');
 const config = require('../../config/config');
-
+const { NotFound } = require('../../core/http-exception')
 class HotBook extends Model {
 	static async getAll() {
 		const books = await HotBook.findAll({
@@ -60,7 +60,8 @@ class HotBook extends Model {
 		});
 
 		if (!book) {
-			throw new Error('没有找到相应的图书');
+			throw new NotFound()
+      // throw new Error('查无此书')
 		}
 
 		return HotBook._formatCover(book)

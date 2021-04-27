@@ -29,7 +29,7 @@ router.get('/hot_list', async (req, res, next) => {
 });
 
 router.get('/detail', async (req, res, next) => {
-	const book = await HotBook.getDetail('区块链将如何重新定义世界1');
+	const book = await HotBook.getDetail('区块链将如何重新定义世界');
   console.log('bookbook===', book)
 	res.json({
 		error_code: 0,

@@ -16,6 +16,7 @@ const catchError = (err, ctx, res, next) => {
         request: `${ctx.method} ${ctx.path}`
       })
 		}
+    next(err)
 	}
 };
 
