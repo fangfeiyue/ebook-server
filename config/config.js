@@ -21,5 +21,5 @@ module.exports = {
 	// 	detailUrl: 'http://t.talelin.com/v2/book/id/%s',
 	// 	keywordUrl: 'http://t.talelin.com/v2/book/search?q=%s&count=%s&start=%s&summary=%s'
 	// },
-	host: 'http://localhost:3000/'
+	host: 'http://192.168.0.100:8083'
 };

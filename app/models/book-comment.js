@@ -2,10 +2,6 @@ const { sequelize } = require('../../core/db');
 const { Sequelize, Model } = require('sequelize');
 
 class Comment extends Model {
-  // constructor() {
-  //   super()
-  // }
-
 	static async addComment(bookID, content) {
 		const comment = await Comment.findOne({ // 查询评论是否已经存在
 			where: {

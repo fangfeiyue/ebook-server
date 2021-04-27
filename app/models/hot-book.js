@@ -1,6 +1,7 @@
 const { sequelize } = require('../../core/db');
 const { Sequelize, Model, Op } = require('sequelize');
 const { Favor } = require('./favor');
+const config = require('../../config/config');
 
 class HotBook extends Model {
 	static async getAll() {
@@ -8,7 +9,7 @@ class HotBook extends Model {
 			order: [ 'index' ] // 指明排序字段，按照哪个字段进行排序
 		});
 
-    // 保存所有书籍的id号
+		// 保存所有书籍的id号
 		const ids = [];
 		books.forEach((book) => {
 			ids.push(book.id);
@@ -16,15 +17,16 @@ class HotBook extends Model {
 
 		const favors = await Favor.findAll({
 			where: {
-				art_id: { // 表明对哪个字段进行in操作
+				art_id: {
+					// 表明对哪个字段进行in操作
 					[Op.in]: ids
 				},
 				type: 400
 			},
 			group: [ 'art_id' ], // group可以根据多个字段分组，所以要是数组
 
-      // [ Sequelize.fn('COUNT', '*'), 'count' ]前面对count进行总数求和，后面的count指的是求出来的名字是什么
-      // attributes 指定查询中的结果包含哪些字段
+			// [ Sequelize.fn('COUNT', '*'), 'count' ]前面对count进行总数求和，后面的count指的是求出来的名字是什么
+			// attributes 指定查询中的结果包含哪些字段
 			attributes: [ 'art_id', [ Sequelize.fn('COUNT', '*'), 'count' ] ]
 		});
 
@@ -32,31 +34,84 @@ class HotBook extends Model {
 			HotBook._getEachBookStatus(book, favors);
 		});
 
-		return books;
+		return HotBook._formatBook(books);
 	}
 
-  static _getEachBookStatus(book, favors){
-    let count = 0
-    favors.forEach(favor=>{
-      if(book.id === favor.art_id){
-        count = favor.get('count')
-      }
-    })
-    book.setDataValue('fav_nums',count)
+	static _formatBook(books) {
+		let mainList = [],
+			recommendList = [];
+
+		books = HotBook._formatCovers(books);
+
+		recommendList = books.slice(0, 3);
+		mainList = books.slice(3, 6);
+
+		return {
+			mainList,
+			recommendList
+		};
+	}
+
+	static async getDetail(file_name) {
+		let book = await HotBook.findOne({
+			where: {
+				file_name
+			}
+		});
+
+		if (!book) {
+			throw new Error('没有找到相应的图书');
+		}
+
+		return HotBook._formatCover(book)
+	}
+
+	static _formatCovers(books = []) {
+		return books.map(book => HotBook._formatCover(book));
+	}
+
+	static _formatCover(book) {
+		book = book && book.dataValues;
+
+		if (book && book.cover && !book.cover.startsWith('http://')) {
+			book['cover'] = `${config.host}/img${book.cover}`;
+		}
+
     return book
-  }
+	}
+
+	static _getEachBookStatus(book, favors) {
+		let count = 0;
+		favors.forEach((favor) => {
+			if (book.id === favor.art_id) {
+				count = favor.get('count');
+			}
+		});
+		book.setDataValue('fav_nums', count);
+		return book;
+	}
 }
 
-HotBook.init({
-	index: Sequelize.INTEGER, // 主要做排序用
-	image: Sequelize.STRING, // 图书封面图
-	author: Sequelize.STRING, // 图书作者
-	title: Sequelize.STRING // 书名
-}, {
-  sequelize,
-  tableName:'hot_book'
-});
+HotBook.init(
+	{
+		index: Sequelize.INTEGER, // 主要做排序用
+		cover: Sequelize.STRING, // 图书封面图
+		author: Sequelize.STRING, // 图书作者
+		title: Sequelize.STRING, // 书名
+		file_name: Sequelize.STRING,
+		publisher: Sequelize.STRING,
+		category_id: Sequelize.INTEGER,
+		category: Sequelize.STRING,
+		language: Sequelize.STRING,
+		root_file: Sequelize.STRING,
+		fav_nums: Sequelize.INTEGER
+	},
+	{
+		sequelize,
+		tableName: 'hot_book'
+	}
+);
 
 module.exports = {
-  HotBook
-}
+	HotBook
+};

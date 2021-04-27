@@ -17,6 +17,27 @@ const { PositiveIntegerValidator, SearchValidator, AddShortCommentValidator } = 
 // 	};
 // });
 
+router.get('/hot_list', async (req, res, next) => {
+	const books = await HotBook.getAll();
+	console.log('books', books);
+	res.json({
+		code: 0,
+		data: {
+			...books
+		}
+	});
+});
+
+router.get('/detail', async (req, res, next) => {
+	const book = await HotBook.getDetail('区块链将如何重新定义世界1');
+  console.log('bookbook===', book)
+	res.json({
+		error_code: 0,
+		msg: '获取成功',
+		data: book
+	});
+});
+
 // 获取书籍点赞情况以及当前书籍用户是否点赞了
 router.get('/:book_id/favor', new Auth().m, bodyParser.json(), async (req, res, next) => {
 	const v = await new PositiveIntegerValidator().validate(req, {
@@ -55,10 +76,10 @@ router.get('/:book_id/short_comment', new Auth().m, bodyParser.json(), async (re
 	});
 	const book_id = v.get('path.book_id');
 	const comments = await Comment.getComments(book_id);
-  res.json({
-    comments,
-    book_id
-  })
+	res.json({
+		comments,
+		book_id
+	});
 });
 
 module.exports = router;
