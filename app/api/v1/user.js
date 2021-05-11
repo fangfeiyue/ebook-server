@@ -1,20 +1,20 @@
 const express = require('express');
 const { User } = require('../../models/user');
+const { Success } = require('../../../core/http-exception');
 const bodyParser = require('body-parser');
 const router = express.Router();
 const { RegisterValidator } = require('../../validators/validator');
 
-router.post('/register', bodyParser.json(), function(req, res, next) {
-	const v = new RegisterValidator()
-		.validate(req)
-		.then(() => {
-			registerSuccess(req, res)
-		})
-		.catch((err) => {
-			console.log('报错了', err);
-      res.json(err)
-		});
-	return;
+router.post('/register', bodyParser.json(), async (req, res, next) => {
+  const v = await new RegisterValidator().validate(req);
+  const user = {
+    email: v.get('body.email'),
+    password: v.get('body.password1'),
+    nickname: v.get('body.nickname')
+  }
+
+  const r = await User.create(user)
+  throw new Success()
 });
 
 function registerSuccess(req, res) {
