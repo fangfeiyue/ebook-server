@@ -11,7 +11,7 @@ const sequelize = new Sequelize(dbName, user, password, {
 	timezone: '+08:00', // 设置时区
 	define: {
 		timestamps: true, // 设置表中是否显示createdAt、updatedAt字段，设置为false时不显示这两个字段
-		paranoid: true, // 显示deletedAt字段
+		paranoid: false, // 显示deletedAt字段
 		createdAt: 'created_at', // 更改自动生成的字段名
 		updatedAt: 'updated_at',
 		underscored: true, // 将字段名由驼峰改为下划线连接的方式

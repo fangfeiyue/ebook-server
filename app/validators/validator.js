@@ -119,6 +119,17 @@ class LikeValidator extends PositiveIntegerValidator {
 
 class ClassicValidator extends LikeValidator {}
 
+class DetailValidator extends LinValidator {
+  constructor() {
+    super()
+    this.fileName = [
+      new Rule('isLength', '文件名不能为空', {
+        min: 1,
+        max: 100
+      })
+    ]
+  }
+}
 class SearchValidator extends LinValidator {
   constructor() {
     super()
@@ -161,6 +172,7 @@ class AddShortCommentValidator extends PositiveIntegerValidator {
 module.exports = {
 	LikeValidator,
   TokenValidator,
+  DetailValidator,
   SearchValidator,
   ClassicValidator,
 	RegisterValidator,

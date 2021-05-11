@@ -1,7 +1,8 @@
 const { sequelize } = require('../../core/db');
 const { Sequelize, Model, Op } = require('sequelize');
-const { Art } = require('./art');
+// const { Art } = require('./art');
 const { LikeError, DislikeError, NotFound } = require('../../core/http-exception');
+// const { Book } = require('./hot-book')
 
 // favor是一个业务表
 class Favor extends Model {
@@ -37,15 +38,17 @@ class Favor extends Model {
 				}
 			);
 			// 查看用户操作的哪种媒体哪个id
-			const art = await Art.getData(art_id, type, false);
+			// const art = await Art.getData(art_id, type, false);
+      const { Book } = require('./book')
+      const book = await Book.getBook(art_id, type, false)
 
 			// 对数字进行加一
 			// 当我们使用scope后，当再次用art的实例去调用increament的时候，会生成一条错误的sql语句，所以需要给getData传递第三个参数，控制哪些地方不是用scope
-			await art.increment('fav_nums', {
+			await book.increment('fav_nums', {
 				by: 1, // 增加多少
 				transaction: t
 			});
-		});
+		}); 
 	}
 	static async disLike(art_id, type, uid) {
 		const favor = await Favor.findOne({
@@ -65,9 +68,11 @@ class Favor extends Model {
 				force: true, // false软删除 true物理删除
 				transaction: t
 			});
-			const art = await Art.getData(art_id, type, false);
+			// const art = await Art.getData(art_id, type, false);
+      const { Book } = require('./book')
+      const book = await Book.getBook(art_id, type, false)
 			// 减一
-			await art.decrement('fav_nums', {
+			await book.decrement('fav_nums', {
 				by: 1,
 				transaction: t
 			});
@@ -84,21 +89,21 @@ class Favor extends Model {
 		return favor ? true : false;
 	}
 
-	static async getMyClassicFavors(uid) {
-		const arts = await Favor.findAll({
-			where: {
-				uid,
-				type: {
-					[Op.not]: 400
-				}
-			}
-		});
-		if (!arts) {
-			throw new NotFound();
-		}
+	// static async getMyClassicFavors(uid) {
+	// 	const arts = await Favor.findAll({
+	// 		where: {
+	// 			uid,
+	// 			type: {
+	// 				[Op.not]: 400
+	// 			}
+	// 		}
+	// 	});
+	// 	if (!arts) {
+	// 		throw new NotFound();
+	// 	}
 
-		return await Art.getList(arts);
-	}
+	// 	return await Art.getList(arts);
+	// }
 
   static async getBookFavor(uid, bookID){
     const favorNums = await Favor.count({

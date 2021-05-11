@@ -18,6 +18,7 @@ app.use('/v1/like', likeRouter)
 app.use('/v1/book', bookRouter)
 
 app.use((err, req, res, next) => {
+  console.log('errrrrrrrrrr', err)
   catchError(err, req, res, next)
 })
 

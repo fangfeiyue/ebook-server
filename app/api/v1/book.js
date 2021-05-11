@@ -3,11 +3,10 @@ const router = express.Router();
 const bodyParser = require('body-parser');
 const { success } = require('../../lib/helper');
 const { Auth } = require('../../../middlewares/auth');
-const { Book } = require('../../models/book');
 const { Comment } = require('../../models/book-comment');
 const { Favor } = require('../../models/favor');
-const { HotBook } = require('../../models/hot-book');
-const { PositiveIntegerValidator, SearchValidator, AddShortCommentValidator } = require('../../validators/validator');
+const { Book } = require('../../models/book');
+const { PositiveIntegerValidator, SearchValidator, AddShortCommentValidator, DetailValidator } = require('../../validators/validator');
 
 // 获取我喜欢的书籍的数量
 // router.get('/favor/count', new Auth().m, async (ctx) => {
@@ -18,7 +17,7 @@ const { PositiveIntegerValidator, SearchValidator, AddShortCommentValidator } = 
 // });
 
 router.get('/hot_list', async (req, res, next) => {
-	const books = await HotBook.getAll();
+	const books = await Book.getAll();
 	console.log('books', books);
 	res.json({
 		code: 0,
@@ -29,8 +28,8 @@ router.get('/hot_list', async (req, res, next) => {
 });
 
 router.get('/detail', async (req, res, next) => {
-	const book = await HotBook.getDetail('区块链将如何重新定义世界');
-  console.log('bookbook===', book)
+  const v = await new DetailValidator().validate(req)
+	const book = await Book.getDetail(v.get('query.fileName'));
 	res.json({
 		error_code: 0,
 		msg: '获取成功',
@@ -62,6 +61,8 @@ router.post('/add/short_comment', new Auth().m, bodyParser.json(), async (req, r
 	const v = await new AddShortCommentValidator().validate(req, {
 		id: 'book_id'
 	});
+
+  console.log('book_id', v)
 	Comment.addComment(v.get('body.book_id'), v.get('body.content'));
 	res.json({
 		code: 0,
@@ -70,7 +71,7 @@ router.post('/add/short_comment', new Auth().m, bodyParser.json(), async (req, r
 });
 
 // // 获取短评
-router.get('/:book_id/short_comment', new Auth().m, bodyParser.json(), async (req, res, next) => {
+router.get('/:book_id/short_comment', bodyParser.json(), async (req, res, next) => {
 	const v = await new PositiveIntegerValidator().validate(req, {
 		id: 'book_id'
 	});
